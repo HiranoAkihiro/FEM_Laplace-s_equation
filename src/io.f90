@@ -43,7 +43,7 @@ subroutine output_vtk(Nm, elements, x, nn, ne, fluxes)
     integer(4), allocatable :: elements(:,:)
     real(8), allocatable :: fluxes(:,:)
 
-    open(20,file="../visual/laplace_solution_with_fluxes.vtk",status="replace")
+    open(20,file="../visual/laplace_solution.vtk",status="replace")
         write(20,'(a)')'# vtk DataFile Version 4.1'
         write(20,'(a)')'Laplace Equation Solution with Fluxes'
         write(20,'(a)')'ASCII'

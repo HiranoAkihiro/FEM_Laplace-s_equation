@@ -1,0 +1,4 @@
+env_Lap/
+bin/laplace_eq
+*.mod
+*.o

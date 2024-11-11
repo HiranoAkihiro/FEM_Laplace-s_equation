@@ -29,10 +29,6 @@ program main
 
     allocate(fluxes(mesh%nelem,2))
     call get_element_fluxes(mesh%node, mesh%elem, mat%x, fluxes)
-    
-    do i=1, mesh%nelem
-        write(*,*)fluxes(i,1)
-    enddo
 
     call output_vtk(mesh%node, mesh%elem, mat%x, mesh%nnode, mesh%nelem, fluxes)
     write(*,*)'***** Normal termination *****'

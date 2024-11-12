@@ -28,7 +28,7 @@ program main
     call debug('solver', debug_flag)
 
     allocate(fluxes(mesh%nelem,2))
-    call get_element_fluxes(mesh%node, mesh%elem, mat%x, fluxes)
+    call get_elem_fluxes(mesh, mat%x, fluxes)
 
     call output_vtk(mesh%node, mesh%elem, mat%x, mesh%nnode, mesh%nelem, fluxes)
     write(*,*)'***** Normal termination *****'

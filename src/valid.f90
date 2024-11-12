@@ -1,43 +1,44 @@
 module mod_valid
     use mod_utils
+    use mod_matrix
     implicit none
     
 contains
 
-subroutine get_element_fluxes(coords, elements, u, fluxes)
-    real(kdouble), intent(in) :: coords(:,:)  ! 形状: (2, num_nodes)
-    integer(kint), intent(in) :: elements(:,:)  ! 形状: (3, num_elements)
+subroutine get_elem_fluxes(mesh, u, fluxes)
+    type(meshdef) :: mesh
     real(kdouble), intent(in) :: u(:)  ! 形状: (num_nodes)
+    integer(kint), allocatable :: elem_id(:)
     real(kdouble), intent(out) :: fluxes(:,:)  ! 形状: (num_elements, 2, 3)
+    integer(kint) :: icel, j
+    real(kdouble) :: B(2,3)
+    real(kdouble) :: u_elem(3), x(3), y(3)
+    real(kdouble) :: S
 
-    integer(kint) :: num_elements, i
-    real(kdouble) :: x(3), y(3), u_values(3), area, b(3), c(3)
-    real(kdouble) :: grad_x, grad_y
+    allocate(elem_id(mesh%nbase_func))
+    fluxes = 0.0d0
 
-    num_elements = size(elements, 2)
+    do icel = 1, mesh%nelem
+        call get_elem_id(mesh, elem_id, icel)
+        u_elem(:) = u(elem_id(:))
 
-    do i = 1, num_elements
-        ! 要素の節点座標を取得
-        x = coords(1, elements(:,i))
-        y = coords(2, elements(:,i))
-        
-        ! 要素の節点での解の値を取得
-        u_values = u(elements(:,i))
+        x(:) = mesh%node(1,elem_id(:))
+        y(:) = mesh%node(2,elem_id(:))
 
-        ! 要素の面積を計算
-        area = 0.5 * abs((x(2) - x(1)) * (y(3) - y(1)) - (x(3) - x(1)) * (y(2) - y(1)))
+        S = 0.5 * abs((x(2) - x(1)) * (y(3) - y(1)) - (x(3) - x(1)) * (y(2) - y(1)))
 
-        ! b と c の係数を計算
-        b = [y(2) - y(3), y(3) - y(1), y(1) - y(2)]
-        c = [x(3) - x(2), x(1) - x(3), x(2) - x(1)]
+        B(1,1) = (y(2) - y(3))/(2.0d0*S)
+        B(1,2) = (y(3) - y(1))/(2.0d0*S)
+        B(1,3) = (y(1) - y(2))/(2.0d0*S)
+        B(2,1) = (x(3) - x(2))/(2.0d0*S)
+        B(2,2) = (x(1) - x(3))/(2.0d0*S)
+        B(2,3) = (x(2) - x(1))/(2.0d0*S)
 
-        ! 勾配を計算
-        grad_x = sum(b * u_values) / (2.0 * area)
-        grad_y = sum(c * u_values) / (2.0 * area)
-
-        ! フラックスを計算して格納
-        fluxes(i, 1) = -grad_x  ! x方向のフラックス
-        fluxes(i, 2) = -grad_y  ! y方向のフラックス
-    end do
-end subroutine get_element_fluxes
+        do j=1,3
+            fluxes(icel,1) = fluxes(icel,1) + B(1,j)*u_elem(j)
+            fluxes(icel,2) = fluxes(icel,2) + B(2,j)*u_elem(j)
+        enddo
+    enddo
+    fluxes = abs(fluxes)
+end subroutine get_elem_fluxes
 end module mod_valid

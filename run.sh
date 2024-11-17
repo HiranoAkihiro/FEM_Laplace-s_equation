@@ -1,10 +1,11 @@
 #!/bin/bash
 
 echo "***** S T A R T *****"
+echo "<select analysis>"
+read -p "Enter 'laplace1', 'laplace2', or, 'poisson':" case
 
-read -p "< selet case >" case
-
-read -p "< create mesh >(num of divisions in x direction) (num of y in ~) : " x y
+echo "< create mesh >"
+read -p "Enter '(num of divisions in x direction)' and '(num of y in y direction)' : " x y
 
 if [ $case = laplace1 ]; then
     cd input1

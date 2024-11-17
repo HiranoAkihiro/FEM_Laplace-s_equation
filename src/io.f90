@@ -107,10 +107,10 @@ subroutine output_data(mesh, mat)
     integer(kint) :: i, nx, ierr
     real(kdouble) :: var
 
-    var = sqrt(dble(mesh%nelem))
+    var = sqrt(dble(mesh%nnode))
     nx = int(var)
     call getcwd(cur_dir, ierr)
-    write(str,'(i0)')mesh%nelem
+    write(str,'(i0)')(nx-1)**2
     cur_dir = 'poisson'
     dir_name = trim(cur_dir)//trim(str)
 

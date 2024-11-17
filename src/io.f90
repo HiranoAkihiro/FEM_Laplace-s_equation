@@ -96,4 +96,43 @@ subroutine output_vtk(Nm, elements, x, nn, ne, fluxes)
 
     close(20)
 end subroutine output_vtk
+
+subroutine output_data(mesh, mat)
+    implicit none
+    type(meshdef), intent(in) :: mesh
+    type(matdef), intent(in) :: mat
+    logical :: dir_exists
+    character(len=:), allocatable :: dir_name
+    character(len=100) :: cur_dir, str, command
+    integer(kint) :: i, nx, ierr
+    real(kdouble) :: var
+
+    var = sqrt(dble(mesh%nelem))
+    nx = int(var)
+    call getcwd(cur_dir, ierr)
+    write(str,'(i0)')mesh%nelem
+    cur_dir = 'poisson'
+    dir_name = trim(cur_dir)//trim(str)
+
+    call chdir("../data", ierr)
+    inquire(file=dir_name, exist=dir_exists)
+    if(.not.dir_exists)then
+        command = 'mkdir '//dir_name
+        call system(trim(command))
+        if(ierr/=0)stop 'mkdir'
+    endif
+
+    open(20,file=dir_name//'/on_axis.dat',status='replace')
+    open(21,file=dir_name//'/center.dat',status='replace')
+        do i=nx,2,-1
+            write(20,'(g0.17,a,g0.17)')-mesh%node(1,i),' ',mat%x(i)
+        enddo
+        do i=1,nx
+            write(20,'(g0.17,a,g0.17)')mesh%node(1,i),' ',mat%x(i)
+        enddo
+
+        write(21,'(i0,a,g0.17)')mesh%nelem,' ',mat%x(1)
+    close(21)
+    close(20)
+end subroutine output_data
 end module mod_io

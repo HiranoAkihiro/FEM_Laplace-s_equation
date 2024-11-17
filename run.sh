@@ -2,15 +2,18 @@
 
 echo "***** S T A R T *****"
 
-read -p "< selet case > Case 1 => 1, Case 2 => 2 : " case
+read -p "< selet case >" case
 
 read -p "< create mesh >(num of divisions in x direction) (num of y in ~) : " x y
 
-if [ $case = 1 ]; then
+if [ $case = laplace1 ]; then
     cd input1
     python3 mesher.py $x $y
-elif [ $case = 2 ]; then
+elif [ $case = laplace2 ]; then
     cd input2
+    python3 mesher.py $x $y
+elif [ $case = poisson ]; then
+    cd input_poisson
     python3 mesher.py $x $y
 fi
 
@@ -18,16 +21,24 @@ echo "press any key to compile the program..."
 read
 
 cd ../
-make clean
-make
+if [ $case = poisson ]; then
+    make -f Makefile.poisson clean
+    make -f Makefile.poisson
+else
+    make clean
+    make
+fi
 
 echo "press any key to start the program..."
 read
 
-if [ $case = 1 ]; then
+if [ $case = laplace1 ]; then
     cd input1
-elif [ $case = 2 ]; then
+    ../bin/laplace_eq
+elif [ $case = laplace2 ]; then
     cd input2
+    ../bin/laplace_eq
+elif [ $case = poisson ]; then
+    cd input_poisson
+    ../bin/poisson_eq
 fi
-
-../bin/laplace_eq

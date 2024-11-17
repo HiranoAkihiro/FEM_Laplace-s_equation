@@ -82,4 +82,23 @@ contains
             enddo
         enddo
     end subroutine add_global_mat
+
+    subroutine get_RHS(mesh, b)
+        implicit none
+        type(meshdef) :: mesh
+        real(kdouble), intent(inout) :: b(:)
+        integer(kint) :: icel, in, i
+        real(kdouble) :: S
+        integer(kint), allocatable :: elem_id(:)
+
+        allocate(elem_id(mesh%nbase_func), source=0)
+        S = (0.5d0**2.0d0)/dble(mesh%nelem)
+        do icel=1,mesh%nelem
+            call get_elem_id(mesh, elem_id, icel)
+            do i=1,mesh%nbase_func
+                in = elem_id(i)
+                b(in) = b(in) + S/3.0d0
+            enddo
+        enddo
+    end subroutine get_RHS
 end module mod_matrix

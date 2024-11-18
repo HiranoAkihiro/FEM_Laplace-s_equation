@@ -35,5 +35,4 @@ program main
     call output_vtk(mesh%node, mesh%elem, mat%x, mesh%nnode, mesh%nelem, fluxes)
     call output_data(mesh, mat)
     write(*,*)'***** Normal termination *****'
-
 end program main

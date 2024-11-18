@@ -50,7 +50,7 @@ contains
             enddo
             mat%A(id,:) = 0.0d0
             mat%A(id,id) = 1.0d0
-            mat%b(id) = mat%b(id) + mesh%bc(j)
+            mat%b(id) = mesh%bc(j)
         enddo
     end subroutine
 

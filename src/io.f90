@@ -131,7 +131,7 @@ subroutine output_data(mesh, mat)
             write(20,'(g0.17,a,g0.17)')mesh%node(1,i),' ',mat%x(i)
         enddo
 
-        write(21,'(i0,a,g0.17)')mesh%nelem,' ',mat%x(1)
+        write(21,'(i0,a,g0.17)')(nx-1)**2,' ',mat%x(1)
     close(21)
     close(20)
 end subroutine output_data

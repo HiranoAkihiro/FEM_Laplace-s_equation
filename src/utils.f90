@@ -14,11 +14,23 @@ module mod_utils
         integer(4) :: nnode
         integer(4) :: nelem
         integer(4) :: nbc
+        integer(4) :: nload
         integer(4) :: nbase_func
         real(8), allocatable :: node(:,:)
         integer(4), allocatable :: elem(:,:)
         integer(4), allocatable :: bc_id(:)
+        integer(4), allocatable :: bc_dof(:)
         real(8), allocatable :: bc(:)
+        integer(4), allocatable :: load_id(:)
+        integer(4), allocatable :: load_dof(:)
+        real(8), allocatable :: load(:)
+    endtype
+
+    type paramdef
+        integer(4) :: E
+        real(8) :: nu
+        logical :: elastic = .false.
+        integer(4) :: flag
     endtype
 contains
     subroutine apply_bc(mesh, mat)
@@ -51,6 +63,40 @@ contains
             mat%A(id,:) = 0.0d0
             mat%A(id,id) = 1.0d0
             mat%b(id) = mesh%bc(j)
+        enddo
+    end subroutine
+
+    subroutine apply_bc_elastic(mesh, mat)
+        implicit none
+        type(meshdef) :: mesh
+        type(matdef) :: mat
+        integer(kint) :: i, j, id, dof
+
+        ! do j=1, mesh%nbc
+        !     id = mesh%bc_id(j)
+        !     do i=1, mesh%nnode
+        !         mat%A(i,id) = 0.0d0
+        !     enddo
+
+        !     do i=1, mesh%nnode
+        !         mat%A(id,i) = 0.0d0
+        !     enddo
+        !     mat%A(id,id) = 1.0d0
+        !     mat%b(id) = mesh%bc(j)
+        ! enddo
+
+        do j=1, mesh%nbc
+            id = mesh%bc_id(j)
+            dof = mesh%bc_dof(j)
+            do i=1, mesh%nnode*ndof
+                if (i /= (id-1)*ndof+dof) then
+                    mat%b(i) = mat%b(i) - mat%A(i,(id-1)*ndof+dof) * mesh%bc(j)
+                    mat%A(i,(id-1)*ndof+dof) = 0.0d0
+                end if
+            enddo
+            mat%A((id-1)*ndof+dof,:) = 0.0d0
+            mat%A((id-1)*ndof+dof,(id-1)*ndof+dof) = 1.0d0
+            mat%b((id-1)*ndof+dof) = mesh%bc(j)
         enddo
     end subroutine
 
